@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Santiago's Minecraft Math Quest</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Press Start 2P', cursive;
+      background-color: #78c850;
+      background-image: url('https://www.minecraft.net/etc.clientlibs/minecraft/clientlibs/main/resources/img/minecraft-creeper-face.svg');
+      background-repeat: no-repeat;
+      background-position: center top;
+      background-size: 150px;
+      padding: 20px;
+      color: #333;
+      text-align: center;
+    }
+    h1 {
+      color: #fff;
+      text-shadow: 2px 2px #000;
+    }
+    #question {
+      font-size: 20px;
+      margin: 30px 0 20px;
+    }
+    .answer-button {
+      display: block;
+      margin: 10px auto;
+      padding: 10px 20px;
+      background-color: #5c913b;
+      border: 3px solid #3e621f;
+      border-radius: 10px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .answer-button:hover {
+      background-color: #77b255;
+    }
+    #score {
+      font-size: 18px;
+      margin-top: 20px;
+    }
+    #highscore {
+      font-size: 18px;
+      margin-top: 10px;
+      color: #222;
+    }
+    #badge {
+      margin-top: 20px;
+    }
+    .minecraft-badge {
+      width: 100px;
+    }
+  </style>
+</head>
+<body>
+  <h1>⛏ Santiago's Minecraft Math Quest ⛏</h1>
+  <div id="question">Loading question...</div>
+  <div id="answers"></div>
+  <div id="score">Score: 0</div>
+  <div id="highscore">High Score: 0</div>
+  <div id="badge"></div>
+  <audio id="correctSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_b5b36b9356.mp3"></audio>
+  <audio id="badgeSound" src="https://cdn.pixabay.com/audio/2022/03/02/audio_1e94f7b089.mp3"></audio>
+
+  <script>
+    const questionDiv = document.getElementById("question");
+    const answersDiv = document.getElementById("answers");
+    const scoreDiv = document.getElementById("score");
+    const highscoreDiv = document.getElementById("highscore");
+    const badgeDiv = document.getElementById("badge");
+    const correctSound = document.getElementById("correctSound");
+    const badgeSound = document.getElementById("badgeSound");
+
+    let score = 0;
+    let highscore = localStorage.getItem("minecraftMathHighscore") || 0;
+    highscoreDiv.textContent = `High Score: ${highscore}`;
+    let currentQuestion = {};
+
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function getDifficultyRange(score) {
+      if (score < 5) return [2, 10];
+      if (score < 10) return [5, 12];
+      if (score < 15) return [6, 15];
+      return [10, 20];
+    }
+
+    function generateQuestion() {
+      const [min, max] = getDifficultyRange(score);
+      const num1 = getRandomInt(min, max);
+      const num2 = getRandomInt(min, max);
+      const isMultiplication = Math.random() > 0.5;
+      const correctAnswer = isMultiplication ? num1 * num2 : num1;
+      const questionText = isMultiplication
+        ? `${num1} × ${num2}`
+        : `${num1 * num2} ÷ ${num2}`;
+
+      const answers = new Set([correctAnswer]);
+      while (answers.size < 4) {
+        answers.add(getRandomInt(min, max) * getRandomInt(min, max));
+      }
+
+      const shuffledAnswers = [...answers].sort(() => 0.5 - Math.random());
+
+      currentQuestion = {
+        questionText,
+        correctAnswer,
+        choices: shuffledAnswers,
+      };
+
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      questionDiv.textContent = currentQuestion.questionText;
+      answersDiv.innerHTML = "";
+
+      currentQuestion.choices.forEach(choice => {
+        const btn = document.createElement("button");
+        btn.textContent = choice;
+        btn.className = "answer-button";
+        btn.onclick = () => checkAnswer(choice);
+        answersDiv.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selected) {
+      if (selected === currentQuestion.correctAnswer) {
+        score++;
+        scoreDiv.textContent = `Score: ${score}`;
+        if (score > highscore) {
+          highscore = score;
+          localStorage.setItem("minecraftMathHighscore", highscore);
+          highscoreDiv.textContent = `High Score: ${highscore}`;
+        }
+        correctSound.play();
+        awardBadge();
+      }
+      generateQuestion();
+    }
+
+    function awardBadge() {
+      let badgeHTML = "";
+      if (score === 5) {
+        badgeHTML = '<img class="minecraft-badge" src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/4/41/Diamond.png" alt="Diamond Badge" /><div>You earned the DIAMOND BADGE!</div>';
+      } else if (score === 10) {
+        badgeHTML = '<img class="minecraft-badge" src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/b/bd/Netherite_Ingot_JE2_BE2.png" alt="Netherite Badge" /><div>You earned the NETHERITE BADGE!</div>';
+      } else if (score === 15) {
+        badgeHTML = '<img class="minecraft-badge" src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/5/58/Totem_of_Undying_JE2_BE2.png" alt="Totem Badge" /><div>You earned the TOTEM OF UNDYING BADGE!</div>';
+      } else if (score === 20) {
+        badgeHTML = '<img class="minecraft-badge" src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/e/e5/Ender_Dragon_Head.png" alt="Dragon Badge" /><div>You earned the ENDER DRAGON BADGE!</div>';
+      }
+
+      if (badgeHTML !== "") {
+        badgeDiv.innerHTML = badgeHTML;
+        badgeSound.play();
+      }
+    }
+
+    generateQuestion();
+  </script>
+</body>
+</html>
