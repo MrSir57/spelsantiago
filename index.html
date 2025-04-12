@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Santiago's Minecraft Math Quest</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
     body {
       font-family: 'Press Start 2P', cursive;
@@ -162,6 +163,7 @@
           highscore = score;
           localStorage.setItem("minecraftMathHighscore", highscore);
           highscoreDiv.textContent = `High Score: ${highscore}`;
+          triggerConfetti();
         }
         correctSound.play();
         awardBadge();
@@ -187,7 +189,16 @@
       }
     }
 
+    function triggerConfetti() {
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    }
+
     generateQuestion();
   </script>
 </body>
 </html>
+
