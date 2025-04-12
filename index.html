@@ -16,6 +16,26 @@
       padding: 20px;
       color: #333;
       text-align: center;
+      overflow-x: hidden;
+    }
+    .animated-character {
+      position: absolute;
+      bottom: 0;
+      width: 100px;
+      animation: moveAcross 15s linear infinite;
+      z-index: -1;
+    }
+    .animated-character:nth-child(1) {
+      left: -120px;
+      animation-delay: 0s;
+    }
+    .animated-character:nth-child(2) {
+      left: -250px;
+      animation-delay: 5s;
+    }
+    @keyframes moveAcross {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(110vw); }
     }
     h1 {
       color: #fff;
@@ -58,6 +78,9 @@
   </style>
 </head>
 <body>
+  <img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/e/e0/Steve.png" alt="Steve" class="animated-character">
+  <img src="https://static.wikia.nocookie.net/minecraft_gamepedia/images/3/32/Alex.png" alt="Alex" class="animated-character">
+
   <h1>⛏ Santiago's Minecraft Math Quest ⛏</h1>
   <div id="question">Loading question...</div>
   <div id="answers"></div>
